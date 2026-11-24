@@ -1,4 +1,5 @@
 import { FormEvent, ReactNode, useEffect, useMemo, useState } from 'react'
+import ResponsibleQuiz from './components/ResponsibleQuiz'
 const heroImage = 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=90'
 
 type Page = 'home' | 'about' | 'map' | 'abyar' | 'events' | 'volunteer' | 'support' | 'education' | 'gallery' | 'reports' | 'dashboard'
@@ -273,11 +274,38 @@ const articles = [
 function Education() {
   const [query, setQuery] = useState('')
   const [cat, setCat] = useState('همه')
+  const [quizOpen, setQuizOpen] = useState(false)
   const filtered = articles.filter(a => (cat === 'همه' || a.cat === cat) && a.title.includes(query))
   return <>
-    <PageHero eyebrow="آموزش و حیات‌وحش" title="شناخت، نخستین شکل مراقبت است" text="محتوای کوتاه و کاربردی برای درک بهتر آب، حیات‌وحش و رفتار مسئولانه در طبیعت." />
-    <section className="section"><div className="container"><div className="search-bar"><div><Icon name="search" /><input value={query} onChange={e => setQuery(e.target.value)} placeholder="جست‌وجو در آموزش‌ها..." /></div>{['همه', 'دانش آب', 'حیات‌وحش', 'مشاهده مسئولانه'].map(c => <button key={c} className={cat === c ? 'active' : ''} onClick={() => setCat(c)}>{c}</button>)}</div>{filtered.length ? <div className="article-grid">{filtered.map(a => <article key={a.title}><img src={a.image} alt="" /><div><span>{a.cat} · {a.time}</span><h3>{a.title}</h3><p>{a.text}</p><button className="text-link">مطالعه مقاله <Icon name="arrow" size={16} /></button></div></article>)}</div> : <div className="empty-state"><Icon name="search" size={40} /><h3>نتیجه‌ای پیدا نشد</h3><p>عبارت کوتاه‌تری جست‌وجو کنید یا فیلتر را تغییر دهید.</p></div>}</div></section>
-    <section className="section education-banner"><div className="container"><div><Icon name="shield" size={40} /><h2>آزمون راهنمای حضور مسئولانه</h2><p>پیش از شرکت در برخی فعالیت‌ها، راهنمای کوتاه حفاظت و ایمنی را کامل کنید.</p></div><Button variant="cream">شروع راهنمای آزمایشی</Button></div></section>
+   <section className="section education-banner">
+  <div className="container">
+    <div>
+      <Icon name="shield" size={40} />
+      <h2>آزمون راهنمای حضور مسئولانه</h2>
+      <p>
+        پیش از شرکت در برخی فعالیت‌ها،
+        راهنمای کوتاه حفاظت و ایمنی را کامل کنید.
+      </p>
+    </div>
+
+    <Button
+      variant="cream"
+      onClick={() => setQuizOpen(true)}
+    >
+      شروع راهنمای آزمایشی
+    </Button>
+
+    {quizOpen && (
+      <Modal
+        label="آزمون راهنمای حضور مسئولانه"
+        onClose={() => setQuizOpen(false)}
+      >
+        <ResponsibleQuiz />
+      </Modal>
+    )}
+
+  </div>
+</section>
   </>
 }
 

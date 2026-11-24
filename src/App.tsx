@@ -1,4 +1,5 @@
 import { FormEvent, ReactNode, useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import ResponsibleQuiz from './components/ResponsibleQuiz'
 const heroImage = 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=90'
 
@@ -119,8 +120,40 @@ function EventCard({ event, onOpen }: { event: typeof events[0]; onOpen: () => v
 }
 
 function Modal({ children, onClose, label }: { children: ReactNode; onClose: () => void; label: string }) {
-  useEffect(() => { const fn = (e: KeyboardEvent) => e.key === 'Escape' && onClose(); window.addEventListener('keydown', fn); return () => window.removeEventListener('keydown', fn) }, [onClose])
-  return <div className="modal-backdrop" onMouseDown={e => e.currentTarget === e.target && onClose()} role="dialog" aria-modal="true" aria-label={label}><div className="modal"><button className="modal-close" onClick={onClose} aria-label="بستن"><Icon name="close" /></button>{children}</div></div>
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose()
+    }
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [onClose])
+
+  return createPortal(
+    <div
+      className="modal-backdrop"
+      onMouseDown={event => {
+        if (event.target === event.currentTarget) onClose()
+      }}
+      role="dialog"
+      aria-modal="true"
+      aria-label={label}
+    >
+      <div className="modal">
+        <button className="modal-close" onClick={onClose} aria-label="بستن">
+          <Icon name="close" />
+        </button>
+        {children}
+      </div>
+    </div>,
+    document.body
+  )
 }
 
 function EventModal({ event, onClose }: { event: typeof events[0]; onClose: () => void }) {
